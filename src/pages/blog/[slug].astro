@@ -1,0 +1,53 @@
+---
+// Import necessary modules and types
+import { getCollection } from "astro:content";
+import type { CollectionEntry } from 'astro:content';
+import Layout from "../../layouts/Layout.astro";
+import Main from "../../components/Main.astro";
+import H1 from "../../components/H1.astro";
+import {Image} from "astro:assets";
+
+// Define getStaticPaths to generate static paths based on the "posts" collection
+export const getStaticPaths = async () => {
+  const posts = await getCollection("posts");
+  const paths = posts.map(post => {
+    return {
+      params: {
+        slug: post.slug
+      },
+      props: {
+        post
+      }
+    };
+  });
+  return paths;
+};
+
+// Define props type for the page
+type Props = {
+  post: CollectionEntry<"posts">;
+};
+
+// Get the post data from props
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<!-- Render the Layout with the post title and main content -->
+<Layout title={post.data.title}>
+  <Main>
+    <H1 text={post.data.title} />
+    <Image
+            src={post.data.image}
+            alt={post.data.title}
+            width={1024}
+            height={1024 / 1.5}
+            format="webp"
+            class="rounded-2xl shadow-xl mb-28 aspect-thumbnail object-cover"
+        />
+     <div class="prose prose-2xl overflow-visible relative mb-20">
+     
+    <Content />
+    </div>
+  </Main>
+</Layout>
